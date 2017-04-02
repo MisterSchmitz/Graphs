@@ -252,7 +252,7 @@ public abstract class Graph {
 		System.out.println("****");
 		System.out.println("Roads / intersections:");
 		GraphAdjList graphFromFile = new GraphAdjList();
-//		GraphLoader.loadRoadMap("data/testdata/simpletest.map", graphFromFile);
+		GraphLoader.loadRoadMap("data/testdata/simpletest.map", graphFromFile);
 		System.out.println(graphFromFile);
 		
 		System.out.println("Observe all degrees are <= 12.");
@@ -261,11 +261,11 @@ public abstract class Graph {
 		System.out.println("\n****");
 		
 		// You can test with real road data here.  Use the data files in data/maps
-		System.out.println("Real Road data:");
-		GraphAdjList realRoadGraph = new GraphAdjList();
-		GraphLoader.loadRoadMap("data/maps/ucsd.map", realRoadGraph);
-		System.out.println(realRoadGraph);
-		
+//		System.out.println("Real Road data:");
+//		GraphAdjList realRoadGraph = new GraphAdjList();
+//		GraphLoader.loadRoadMap("data/maps/ucsd.map", realRoadGraph);
+//		System.out.println(realRoadGraph);
+//		
 //		System.out.println("Flight data:");
 //		GraphAdjList airportGraph = new GraphAdjList();
 //		GraphLoader.loadRoutes("data/airports/routesUA.dat", airportGraph);
@@ -276,8 +276,8 @@ public abstract class Graph {
 		//For testing Part 2 functionality
 		// Test your distance2 code here.
 		System.out.println("Testing distance-two methods on sample graphs...");
+		System.out.println(graphFromFile.getDistance2(1));
 		System.out.println("Goal: implement method using two approaches.");
-
 
 		
 	}
