@@ -8,7 +8,10 @@
 package roadgraph;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -24,14 +27,22 @@ import util.GraphLoader;
  */
 public class MapGraph {
 	//TODO: Add your member variables here in WEEK 3
+	private int numVertices;
+	private int numEdges;
+//	private Map<GeographicPoint,String> vertexLabels;
 	
+	private Map<GeographicPoint,ArrayList<GeographicPoint>> map;
 	
+
 	/** 
 	 * Create a new empty MapGraph 
 	 */
 	public MapGraph()
 	{
-		// TODO: Implement in this constructor in WEEK 3
+		numVertices = 0;
+		numEdges = 0;
+//		vertexLabels = null;
+		map = new HashMap<GeographicPoint,ArrayList<GeographicPoint>>();
 	}
 	
 	/**
@@ -40,8 +51,7 @@ public class MapGraph {
 	 */
 	public int getNumVertices()
 	{
-		//TODO: Implement this method in WEEK 3
-		return 0;
+		return numVertices;
 	}
 	
 	/**
@@ -51,7 +61,7 @@ public class MapGraph {
 	public Set<GeographicPoint> getVertices()
 	{
 		//TODO: Implement this method in WEEK 3
-		return null;
+		return map.keySet();
 	}
 	
 	/**
@@ -60,8 +70,7 @@ public class MapGraph {
 	 */
 	public int getNumEdges()
 	{
-		//TODO: Implement this method in WEEK 3
-		return 0;
+		return numEdges;
 	}
 
 	
@@ -75,8 +84,13 @@ public class MapGraph {
 	 */
 	public boolean addVertex(GeographicPoint location)
 	{
-		// TODO: Implement this method in WEEK 3
-		return false;
+		if(location == null || map.containsKey(location)) {
+			return false;
+		}
+		
+		map.put(location, new ArrayList<GeographicPoint>());
+		numVertices++;
+		return true;
 	}
 	
 	/**
@@ -93,11 +107,46 @@ public class MapGraph {
 	 */
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
-
 		//TODO: Implement this method in WEEK 3
+		if (from == null || to == null || !map.containsKey(from) || !map.containsKey(to) || length < 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		if (!map.get(from).contains(to)) {
+			map.get(from).add(to);
+			numEdges++;
+		}
 		
 	}
 	
+	public String printGraph() {
+		return map.toString();
+	}
+	
+	/** Return a String representation of the graph
+	 * @return A string representation of the graph
+	 */
+	public String toString() {
+		String s = "\nGraph with " + numVertices + " vertices and " + numEdges + " edges.\n";
+//		s += "Degree sequence: " + degreeSequence() + ".\n";
+		if (numVertices <= 20) s += adjacencyString();
+		return s;
+	}
+	
+	/**
+	 * Generate string representation of adjacency list
+	 * @return the String
+	 */
+	public String adjacencyString() {
+		String s = "";
+		for (GeographicPoint node : map.keySet()) {
+			s += "\n\t("+node+"): ";
+			for (GeographicPoint neighbor : map.get(node)) {
+				s += "("+neighbor+"), ";
+			}
+		}
+		return s;
+	}
 
 	/** Find the path from start to goal using breadth first search
 	 * 
@@ -208,6 +257,8 @@ public class MapGraph {
 		System.out.println("DONE.");
 		
 		// You can use this method for testing.  
+//		System.out.println(firstMap.printGraph());
+		System.out.println(firstMap.toString());
 		
 		
 		/* Here are some test cases you should try before you attempt 
