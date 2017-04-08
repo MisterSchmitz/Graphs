@@ -206,6 +206,12 @@ public class Maze {
 		}
 
 		// reconstruct the path
+		return constructPath(start, goal, parentMap);
+	}
+	
+	private List<MazeNode> constructPath(MazeNode start, MazeNode goal, 
+			HashMap<MazeNode, MazeNode> parentMap) 
+	{	
 		LinkedList<MazeNode> path = new LinkedList<MazeNode>();
 		MazeNode curr = goal;
 		while (curr != start) {
