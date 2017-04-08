@@ -10,13 +10,17 @@ package roadgraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import geography.GeographicPoint;
 import util.GraphLoader;
+import week3example.MazeNode;
 
 /**
  * @author UCSD MOOC development team and YOU
@@ -29,10 +33,7 @@ public class MapGraph {
 	//TODO: Add your member variables here in WEEK 3
 	private int numVertices;
 	private int numEdges;
-//	private Map<GeographicPoint,String> vertexLabels;
-	
 	private Map<GeographicPoint,ArrayList<GeographicPoint>> map;
-	
 
 	/** 
 	 * Create a new empty MapGraph 
@@ -41,7 +42,6 @@ public class MapGraph {
 	{
 		numVertices = 0;
 		numEdges = 0;
-//		vertexLabels = null;
 		map = new HashMap<GeographicPoint,ArrayList<GeographicPoint>>();
 	}
 	
@@ -172,12 +172,46 @@ public class MapGraph {
 	public List<GeographicPoint> bfs(GeographicPoint start, 
 			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 3
+		boolean found = false;
+		LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
+		
+		Queue<GeographicPoint> toVisit = new LinkedList<GeographicPoint>();
+		HashSet<GeographicPoint> visited = new HashSet<GeographicPoint>();
+		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
+		
+		toVisit.add(start);
+		
+		while (!toVisit.isEmpty()) {
+			GeographicPoint curr = toVisit.remove();
+			if (curr.equals(goal)) {
+				found = true;
+				break;
+			}
+			for (GeographicPoint neighbor : map.get(curr)) {
+				if (!visited.contains(neighbor)) {
+					visited.add(neighbor);
+					parentMap.put(neighbor, curr);
+					toVisit.add(neighbor);
+				}
+			}
+		}
+		
+		if(!found) {
+			return null;
+		}
+		else {
+			GeographicPoint curr = goal;
+			while (!curr.equals(start)) {
+				path.addFirst(curr);
+				curr = parentMap.get(curr);	// Get the parent for the current member 
+			}
+			path.addFirst(start);
+		}
 		
 		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
+//		nodeSearched.accept(next.getLocation());
 
-		return null;
+		return path;
 	}
 	
 
@@ -260,6 +294,10 @@ public class MapGraph {
 //		System.out.println(firstMap.printGraph());
 		System.out.println(firstMap.toString());
 		
+//		GeographicPoint testStart = new GeographicPoint(1.0, 1.0);
+//		GeographicPoint testEnd = new GeographicPoint(8.0, -1.0);
+//		
+//		firstMap.bfs(testStart, testEnd);
 		
 		/* Here are some test cases you should try before you attempt 
 		 * the Week 3 End of Week Quiz, EVEN IF you score 100% on the 
