@@ -12,8 +12,6 @@ import geography.GeographicPoint;
 public class MapEdge {
 	private GeographicPoint locationStart;
 	private GeographicPoint locationEnd;
-	private MapNode nodeStart;
-	private MapNode nodeEnd;
 	private String roadName;
 	private String roadType;
 	private double distance;

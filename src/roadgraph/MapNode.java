@@ -13,11 +13,11 @@ import geography.GeographicPoint;
  */
 public class MapNode {
 	private GeographicPoint location;
-	private HashSet<MapEdge> edgesOut;
-	private HashSet<MapEdge> edgesIn;
+	private HashSet<MapEdge> edges;
 	
 	public MapNode(GeographicPoint loc) {
 		this.setLocation(loc);
+		this.edges = new HashSet<MapEdge>(); 
 	}
 	
 	public GeographicPoint getLocation(){
@@ -28,23 +28,14 @@ public class MapNode {
 		this.location = p;
 	}
 	
-	public HashSet<MapEdge> getEdgesOut() {
-		return edgesOut;
+	public HashSet<MapEdge> getEdges() {
+		return edges;
 	}
 	
-	public void addEdgeOut(MapEdge e) {
-		if(!edgesOut.contains(e)) {
-			edgesOut.add(e);
+	public void addEdge(MapEdge e) {
+		if(!edges.contains(e)) {
+			edges.add(e);
 		}
 	}
 	
-	public HashSet<MapEdge> getEdgesIn() {
-		return edgesIn;
-	}
-	
-	public void addEdgeIn(MapEdge e) {
-		if(!edgesIn.contains(e)) {
-			edgesIn.add(e);
-		}
-	}
 }
