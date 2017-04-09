@@ -171,13 +171,10 @@ public class MapGraph {
 		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
 		
 		// Search for a path using BFS
-		if(!bfsSearch(start, goal, parentMap)) {
+		if(!bfsSearch(start, goal, parentMap, nodeSearched)) {
 			return null;
 		}
-		
-		// Hook for visualization.  See writeup.
-		// nodeSearched.accept(next.getLocation());
-		
+			
 		// reconstruct the path
 		return constructPath(start, goal, parentMap);
 	}
@@ -190,7 +187,7 @@ public class MapGraph {
 	 * @return boolean indicating whether a path was found using BFS
 	 */
 	private boolean bfsSearch(GeographicPoint start, GeographicPoint goal, 
-			HashMap<GeographicPoint, GeographicPoint> parentMap) {
+			HashMap<GeographicPoint, GeographicPoint> parentMap, Consumer<GeographicPoint> nodeSearched) {
 		
 		boolean found = false;
 		Queue<GeographicPoint> toVisit = new LinkedList<GeographicPoint>();
@@ -200,6 +197,8 @@ public class MapGraph {
 		
 		while (!toVisit.isEmpty()) {
 			GeographicPoint curr = toVisit.remove();
+			nodeSearched.accept(curr);
+			
 			if (curr.equals(goal)) {
 				found = true;
 				break;
