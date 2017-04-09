@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 
 import geography.GeographicPoint;
 import util.GraphLoader;
-import week3example.MazeNode;
 
 /**
  * @author UCSD MOOC development team and YOU
@@ -30,7 +29,6 @@ import week3example.MazeNode;
  *
  */
 public class MapGraph {
-	//TODO: Add your member variables here in WEEK 3
 	private int numVertices;
 	private int numEdges;
 	private Map<GeographicPoint,ArrayList<GeographicPoint>> map;
@@ -60,7 +58,6 @@ public class MapGraph {
 	 */
 	public Set<GeographicPoint> getVertices()
 	{
-		//TODO: Implement this method in WEEK 3
 		return map.keySet();
 	}
 	
@@ -72,7 +69,6 @@ public class MapGraph {
 	{
 		return numEdges;
 	}
-
 	
 	
 	/** Add a node corresponding to an intersection at a Geographic Point
@@ -107,7 +103,6 @@ public class MapGraph {
 	 */
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
-		//TODO: Implement this method in WEEK 3
 		if (from == null || to == null || !map.containsKey(from) || !map.containsKey(to) || length < 0) {
 			throw new IllegalArgumentException();
 		}
@@ -118,10 +113,7 @@ public class MapGraph {
 		}
 		
 	}
-	
-	public String printGraph() {
-		return map.toString();
-	}
+
 	
 	/** Return a String representation of the graph
 	 * @return A string representation of the graph
@@ -170,14 +162,35 @@ public class MapGraph {
 	 *   path from start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> bfs(GeographicPoint start, 
-			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
-	{
-		boolean found = false;
-		LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
+			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)	{
+
+		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
 		
+		// Search for a path using BFS
+		if(!bfsSearch(start, goal, parentMap)) {
+			return null;
+		}
+		
+		// Hook for visualization.  See writeup.
+		// nodeSearched.accept(next.getLocation());
+		
+		// reconstruct the path
+		return constructPath(start, goal, parentMap);
+	}
+	
+	/** Helper method for searching for a path using BFS
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @param parentMap Map linking nodes to their parent in path
+	 * @return boolean indicating whether a path was found using BFS
+	 */
+	private boolean bfsSearch(GeographicPoint start, GeographicPoint goal, 
+			HashMap<GeographicPoint, GeographicPoint> parentMap) {
+		
+		boolean found = false;
 		Queue<GeographicPoint> toVisit = new LinkedList<GeographicPoint>();
 		HashSet<GeographicPoint> visited = new HashSet<GeographicPoint>();
-		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
 		
 		toVisit.add(start);
 		
@@ -195,25 +208,28 @@ public class MapGraph {
 				}
 			}
 		}
-		
-		if(!found) {
-			return null;
-		}
-		else {
-			GeographicPoint curr = goal;
-			while (!curr.equals(start)) {
-				path.addFirst(curr);
-				curr = parentMap.get(curr);	// Get the parent for the current member 
-			}
-			path.addFirst(start);
-		}
-		
-		// Hook for visualization.  See writeup.
-//		nodeSearched.accept(next.getLocation());
-
-		return path;
+		return found;
 	}
-	
+
+	/** Helper method for constructing the bfs-found path from start to goal
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @param parentMap Map linking nodes to their parent in path
+	 * @return the path of GeographicPoints from start to goal
+	 */
+	private static List<GeographicPoint> constructPath(GeographicPoint start, GeographicPoint goal, 
+			HashMap<GeographicPoint, GeographicPoint> parentMap) {
+		
+		LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
+		GeographicPoint curr = goal;
+		while (curr != start) {
+			path.addFirst(curr);
+			curr = parentMap.get(curr);
+		}
+		path.addFirst(start);
+		return path;
+	}	
 
 	/** Find the path from start to goal using Dijkstra's algorithm
 	 * 
@@ -292,7 +308,7 @@ public class MapGraph {
 		
 		// You can use this method for testing.  
 //		System.out.println(firstMap.printGraph());
-		System.out.println(firstMap.toString());
+//		System.out.println(firstMap.toString());
 		
 //		GeographicPoint testStart = new GeographicPoint(1.0, 1.0);
 //		GeographicPoint testEnd = new GeographicPoint(8.0, -1.0);
