@@ -31,6 +31,7 @@ import util.GraphLoader;
 public class MapGraph {
 	private int numVertices;
 	private int numEdges;
+	private HashMap<GeographicPoint, MapNode> vertices;
 	private Map<GeographicPoint,ArrayList<GeographicPoint>> map;
 
 	/** 
