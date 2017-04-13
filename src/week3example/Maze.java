@@ -209,18 +209,18 @@ public class Maze {
 		return constructPath(start, goal, parentMap);
 	}
 	
-	private List<MazeNode> constructPath(MazeNode start, MazeNode goal, 
-			HashMap<MazeNode, MazeNode> parentMap) 
-	{	
-		LinkedList<MazeNode> path = new LinkedList<MazeNode>();
-		MazeNode curr = goal;
-		while (curr != start) {
-			path.addFirst(curr);
-			curr = parentMap.get(curr);
-		}
-		path.addFirst(start);
-		return path;
-	}
+//	private List<MazeNode> constructPath(MazeNode start, MazeNode goal, 
+//			HashMap<MazeNode, MazeNode> parentMap) 
+//	{	
+//		LinkedList<MazeNode> path = new LinkedList<MazeNode>();
+//		MazeNode curr = goal;
+//		while (curr != start) {
+//			path.addFirst(curr);
+//			curr = parentMap.get(curr);
+//		}
+//		path.addFirst(start);
+//		return path;
+//	}
 	
 	
 	/** breadth first search from (startRow,startCol) to (endRow,endCol)
@@ -281,7 +281,7 @@ public class Maze {
 		return path;
 	}
 
-/*	public List<MazeNode> dfsRefactored(int startRow, int startCol, 
+	public List<MazeNode> dfsRefactored(int startRow, int startCol, 
 										int endRow, int endCol) {
 		// Initialize
 		MazeNode start = cells[startRow][startCol];
@@ -343,7 +343,6 @@ public class Maze {
 		return path;
 	}
 
-*/
 	public static void main(String[] args) {
 		String mazeFile = "data/mazes/maze1.maze";
 		Maze maze = new Maze();
