@@ -263,8 +263,13 @@ public class MapGraph {
 	{
 		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
 		
+		for (MapNode node : vertices.values()) {
+			node.setSearchDistance(Double.POSITIVE_INFINITY);
+			node.setEstimatedDistanceFromGoal(0);
+		}		
+		
 		// Search for a path using Dijkstra's algorithm
-		if(!dijkstraSearch(start, goal, parentMap, nodeSearched)) {
+		if(!aStarSearchSearch(start, goal, parentMap, nodeSearched)) {
 			return null;
 		}
 		
@@ -274,82 +279,6 @@ public class MapGraph {
 		return constructPath(start, goal, parentMap);
 	}
 
-	
-	/** Helper method for searching for a path using Dijkstra's algorithm
-	 * 
-	 * @param start The starting location
-	 * @param goal The goal location
-	 * @param parentMap Map linking nodes to their parent in path
-	 * @return boolean indicating whether a path was found using BFS
-	 */
-	private boolean dijkstraSearch(GeographicPoint start, GeographicPoint goal, 
-			HashMap<GeographicPoint, GeographicPoint> parentMap, Consumer<GeographicPoint> nodeSearched) {
-		
-		boolean found = false;
-		
-		// Initialize
-		Comparator<MapNode> comparator = new MapNodeComparatorAStar();
-		PriorityQueue<MapNode> toVisit = new PriorityQueue<MapNode>(comparator);
-		HashSet<MapNode> visited = new HashSet<MapNode>();
-		for (MapNode node : vertices.values()) {
-			node.setSearchDistance(Double.POSITIVE_INFINITY);
-		}
-		MapNode startNode = vertices.get(start);
-		MapNode goalNode = vertices.get(goal);
-		startNode.setSearchDistance(0);
-		toVisit.add(startNode);
-		
-		nodeVisitCount = 0;
-		
-		// Search
-		while (!toVisit.isEmpty()) {
-			
-			// dequeue node curr from front of queue
-			MapNode curr = toVisit.remove();
-			
-			// Testing number of visited nodes
-			System.out.println("[Dijkstra] "+curr);
-			nodeVisitCount++;
-			
-			// hook for visualization
-			nodeSearched.accept(curr.getLocation());
-			
-			if (!visited.contains(curr)) {
-				// add curr to visited set
-				visited.add(curr);
-				
-				// if curr is our goal
-				if (curr.equals(goalNode)) {
-					found = true;
-					break;
-				}
-				
-				// for each of curr's neighbors not in visited set:
-				for (MapEdge neighbor : curr.getEdges()) {
-					if (!visited.contains(neighbor.getLocationEnd())) {
-
-						MapNode neighborNode = vertices.get(neighbor.getLocationEnd());
-						
-						System.out.println("[Dijkstra] Neighbor: "+neighborNode);
-						double pathToNeighbor = curr.getSearchDistance() + neighbor.getDistance();
-
-						// If path through curr to neighbor is shorter
-						if(pathToNeighbor < neighborNode.getSearchDistance()) {
-							
-							// Update curr as neighbor's parent in parent map
-							parentMap.put(neighbor.getLocationEnd(), curr.getLocation());
-							
-							// Enqueue {neighbor,distance} into the PQ
-							neighborNode.setSearchDistance(pathToNeighbor);
-							toVisit.add(neighborNode);
-						}
-					}
-				}
-			}
-		}
-		return found;
-	}
-	
 	
 	/** Find the path from start to goal using A-Star search
 	 * 
@@ -364,7 +293,7 @@ public class MapGraph {
         return aStarSearch(start, goal, temp);
 	}
 	
-	/** Find the path from start to goal using A-Star search
+	/** Find the path from start to goal using A* search
 	 * 
 	 * @param start The starting location
 	 * @param goal The goal location
@@ -377,7 +306,12 @@ public class MapGraph {
 	{
 		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
 		
-		// Search for a path using Dijkstra's algorithm
+		for (MapNode node : vertices.values()) {
+			node.setSearchDistance(Double.POSITIVE_INFINITY);
+			node.setEstimatedDistanceFromGoal(node.getLocation().distance(goal));
+		}
+		
+		// Search for a path using A* algorithm
 		if(!aStarSearchSearch(start, goal, parentMap, nodeSearched)) {
 			return null;
 		}
@@ -402,13 +336,10 @@ public class MapGraph {
 		boolean found = false;
 		
 		// Initialize
-		
 		Comparator<MapNode> comparator = new MapNodeComparatorAStar();
 		PriorityQueue<MapNode> toVisit = new PriorityQueue<MapNode>(comparator);
 		HashSet<MapNode> visited = new HashSet<MapNode>();
-		for (MapNode node : vertices.values()) {
-			node.setSearchDistance(Double.POSITIVE_INFINITY);
-		}
+
 		MapNode startNode = vertices.get(start);
 		MapNode goalNode = vertices.get(goal);
 		startNode.setSearchDistance(0);
@@ -444,7 +375,7 @@ public class MapGraph {
 					if (!visited.contains(neighbor.getLocationEnd())) {
 						
 						MapNode neighborNode = vertices.get(neighbor.getLocationEnd());
-						neighborNode.setEstimatedDistanceFromGoal(neighbor.getLocationEnd().distance(goal));
+						
 						System.out.println("[A*] Neighbor: "+neighborNode);					
 						double pathToNeighbor = curr.getSearchDistance() + neighbor.getDistance();
 
