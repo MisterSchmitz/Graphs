@@ -365,15 +365,87 @@ public class MapGraph {
 	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
 											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 4
+		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
 		
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
-		
-		return null;
+		// Search for a path using Dijkstra's algorithm
+		if(!aStarSearchSearch(start, goal, parentMap, nodeSearched)) {
+			return null;
+		}
+			
+		// reconstruct the path
+		return constructPath(start, goal, parentMap);
 	}
 
+	/** Find the path from start to goal using A-Star search
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @param parentMap Map linking nodes to their parent in path
+	 * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
+	 * @return boolean indicating whether a path was found using A* Search
+	 */
+	private boolean aStarSearchSearch(GeographicPoint start, GeographicPoint goal, 
+			HashMap<GeographicPoint, GeographicPoint> parentMap, Consumer<GeographicPoint> nodeSearched) {
+
+		boolean found = false;
+		
+		// Initialize
+		PriorityQueue<MapNode> toVisit = new PriorityQueue<MapNode>();
+		HashSet<MapNode> visited = new HashSet<MapNode>();
+		for (MapNode node : vertices.values()) {
+			node.setSearchDistance(Double.POSITIVE_INFINITY);
+		}
+		MapNode startNode = vertices.get(start);
+		MapNode goalNode = vertices.get(goal);
+		startNode.setSearchDistance(0);
+		toVisit.add(startNode);
+		
+		// Search
+		while (!toVisit.isEmpty()) {
+			
+			// dequeue node curr from front of queue
+			MapNode curr = toVisit.remove();
+			
+			// hook for visualization
+			nodeSearched.accept(curr.getLocation());
+			
+			if (!visited.contains(curr)) {
+				// add curr to visited set
+				visited.add(curr);
+				
+				// if curr is our goal
+				if (curr.equals(goalNode)) {
+					found = true;
+					break;
+				}
+				
+				// for each of curr's neighbors not in visited set:
+				for (MapEdge neighbor : curr.getEdges()) {
+					if (!visited.contains(neighbor.getLocationEnd())) {
+
+						MapNode neighborNode = vertices.get(neighbor.getLocationEnd());
+						double pathToNeighbor = curr.getSearchDistance() + neighbor.getDistance();
+
+						// If path through curr to neighbor is shorter
+						if(pathToNeighbor < neighborNode.getSearchDistance()) {
+							
+							// Update curr as neighbor's parent in parent map
+							parentMap.put(neighbor.getLocationEnd(), curr.getLocation());
+							
+							// Enqueue {neighbor,distance} into the PQ, where distance incorporates straight-line distance from goal
+							neighborNode.setSearchDistance(pathToNeighbor + straightLineDistance(neighbor.getLocationEnd(),goal));
+							toVisit.add(neighborNode);
+						}
+					}
+				}
+			}
+		}
+		return found;
+	}
 	
+	private double straightLineDistance(GeographicPoint a, GeographicPoint b) {
+		return Math.sqrt(Math.pow(a.x,2) + Math.pow(a.y,2));
+	}
 	
 	public static void main(String[] args)
 	{
@@ -404,7 +476,10 @@ public class MapGraph {
 		
 		System.out.println("Test 1 using simpletest: Dijkstra should be 9 and AStar should be 5");
 		List<GeographicPoint> testroute = simpleTestMap.dijkstra(testStart,testEnd);
-//		List<GeographicPoint> testroute2 = simpleTestMap.aStarSearch(testStart,testEnd);
+		List<GeographicPoint> testroute2 = simpleTestMap.aStarSearch(testStart,testEnd);
+		
+		System.out.println(testroute);
+		System.out.println(testroute2);
 		
 		/*
 		MapGraph testMap = new MapGraph();
