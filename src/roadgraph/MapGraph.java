@@ -8,6 +8,7 @@
 package roadgraph;
 
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -225,10 +226,10 @@ public class MapGraph {
 	 */
 	private static List<GeographicPoint> constructPath(GeographicPoint start, GeographicPoint goal, 
 			HashMap<GeographicPoint, GeographicPoint> parentMap) {
-		
+
 		LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
 		GeographicPoint curr = goal;
-		while (curr != start) {
+		while (!curr.equals(start)) {
 			path.addFirst(curr);
 			curr = parentMap.get(curr);
 		}
@@ -287,51 +288,46 @@ public class MapGraph {
 		
 		// Initialize
 		PriorityQueue<MapNode> toVisit = new PriorityQueue<MapNode>();
-//		PriorityQueue<GeographicPoint> toVisit = new PriorityQueue<GeographicPoint>();
-		HashSet<GeographicPoint> visited = new HashSet<GeographicPoint>();
+		HashSet<MapNode> visited = new HashSet<MapNode>();
 		for (MapNode node : vertices.values()) {
 			node.setSearchDistance(Double.POSITIVE_INFINITY);
 		}
-		
-		// Start
 		MapNode startNode = vertices.get(start);
+		MapNode goalNode = vertices.get(goal);
 		startNode.setSearchDistance(0);
-		toVisit.add(vertices.get(start));
+		toVisit.add(startNode);
 		
 		// Search
 		while (!toVisit.isEmpty()) {
 			
 			// dequeue node curr from front of queue
-			GeographicPoint curr = toVisit.remove().getLocation();
+			MapNode curr = toVisit.remove();
 			
 			// hook for visualization
-			nodeSearched.accept(curr);
+			nodeSearched.accept(curr.getLocation());
 			
 			if (!visited.contains(curr)) {
 				// add curr to visited set
 				visited.add(curr);
 				
 				// if curr is our goal
-				if (curr.equals(goal)) {
+				if (curr.equals(goalNode)) {
 					found = true;
 					break;
 				}
 				
-				MapNode currNode = vertices.get(curr);
-				System.out.println(currNode);
-				
 				// for each of curr's neighbors not in visited set:
-				for (MapEdge neighbor : currNode.getEdges()) {
+				for (MapEdge neighbor : curr.getEdges()) {
 					if (!visited.contains(neighbor.getLocationEnd())) {
 
 						MapNode neighborNode = vertices.get(neighbor.getLocationEnd());
-						double pathToNeighbor = currNode.getSearchDistance() + neighbor.getDistance();
-						System.out.println("Neighbor"+neighborNode+": "+pathToNeighbor);
+						double pathToNeighbor = curr.getSearchDistance() + neighbor.getDistance();
+
 						// If path through curr to neighbor is shorter
 						if(pathToNeighbor < neighborNode.getSearchDistance()) {
 							
 							// Update curr as neighbor's parent in parent map
-							parentMap.put(neighbor.getLocationEnd(), curr);
+							parentMap.put(neighbor.getLocationEnd(), curr.getLocation());
 							
 							// Enqueue {neighbor,distance} into the PQ
 							neighborNode.setSearchDistance(pathToNeighbor);
@@ -381,14 +377,13 @@ public class MapGraph {
 	
 	public static void main(String[] args)
 	{
-		System.out.print("Making a new map...");
-		MapGraph firstMap = new MapGraph();
-		System.out.print("DONE. \nLoading the map...");
-		GraphLoader.loadRoadMap("data/testdata/simpletest.map", firstMap);
-		System.out.println("DONE.");
+//		System.out.print("Making a new map...");
+//		MapGraph firstMap = new MapGraph();
+//		System.out.print("DONE. \nLoading the map...");
+//		GraphLoader.loadRoadMap("data/testdata/simpletest.map", firstMap);
+//		System.out.println("DONE.");
 		
-		// You can use this method for testing. 
-		System.out.println(firstMap.toString());
+//		System.out.println(firstMap.toString());
 		
 //		GeographicPoint testStart = new GeographicPoint(1.0, 1.0);
 //		GeographicPoint testEnd = new GeographicPoint(8.0, -1.0);
@@ -402,13 +397,14 @@ public class MapGraph {
 		
 		MapGraph simpleTestMap = new MapGraph();
 		GraphLoader.loadRoadMap("data/testdata/simpletest.map", simpleTestMap);
+		System.out.println(simpleTestMap.toString());
 		
 		GeographicPoint testStart = new GeographicPoint(1.0, 1.0);
 		GeographicPoint testEnd = new GeographicPoint(8.0, -1.0);
 		
 		System.out.println("Test 1 using simpletest: Dijkstra should be 9 and AStar should be 5");
 		List<GeographicPoint> testroute = simpleTestMap.dijkstra(testStart,testEnd);
-		List<GeographicPoint> testroute2 = simpleTestMap.aStarSearch(testStart,testEnd);
+//		List<GeographicPoint> testroute2 = simpleTestMap.aStarSearch(testStart,testEnd);
 		
 		/*
 		MapGraph testMap = new MapGraph();
