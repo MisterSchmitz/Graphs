@@ -70,4 +70,11 @@ public class MapEdge {
 		this.distance = d;
 	}
 	
+	public String toString() {
+		String s = "Edge: " + this.getRoadName();
+		s += ", Start: "+this.getLocationStart();
+		s += ", End: "+this.getLocationEnd();
+		s += ", Distance: "+this.getDistance();
+		return s;
+	}
 }

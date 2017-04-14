@@ -11,14 +11,16 @@ import geography.GeographicPoint;
  * @author mschmitz
  *
  */
-public class MapNode implements Comparable<MapNode> {
+public class MapNode {
 	private GeographicPoint location;
 	private HashSet<MapEdge> edges;
 	private double searchDistance;	// used for comparing distance in a search
+	private double estimatedDistanceFromGoal;	// used for comparing distance in a A* search algorithm
 
 	public MapNode(GeographicPoint loc) {
 		this.setLocation(loc);
 		this.edges = new HashSet<MapEdge>();
+		this.estimatedDistanceFromGoal=0; // Initialize to 0 for compatibility with Dijkstra search algorithm
 	}
 	
 	public GeographicPoint getLocation(){
@@ -46,17 +48,19 @@ public class MapNode implements Comparable<MapNode> {
 	public void setSearchDistance(double d) {
 		this.searchDistance = d;
 	}
+
+	public double getEstimatedDistanceFromGoal() {
+		return estimatedDistanceFromGoal;
+	}
 	
+	public void setEstimatedDistanceFromGoal(double d) {
+		this.estimatedDistanceFromGoal = d;
+	}
 
 	public String toString() {
 		String s = "Node: " + this.getLocation();
 		s += ", searchDistance: "+this.getSearchDistance();
+		s += ", estimatedDistanceFromGoal: "+this.getEstimatedDistanceFromGoal();
 		return s;
-	}
-	
-	public int compareTo(MapNode other) {
-		if(this.searchDistance < other.searchDistance) return -1;
-		if(this.searchDistance > other.searchDistance) return 1;
-		return 0;
 	}
 }
