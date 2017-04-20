@@ -16,6 +16,8 @@ public class MapNode {
 	private HashSet<MapEdge> edges;
 	private double searchDistance;	// used for comparing distance in a search
 	private double estimatedDistanceFromGoal;	// used for comparing distance in a A* search algorithm
+	private double pathTime;	// used for comparing time in a search
+	private double estimatedTimeFromGoal;	// used for comparing time in a A* search algorithm
 
 	public MapNode(GeographicPoint loc) {
 		this.setLocation(loc);
@@ -49,6 +51,14 @@ public class MapNode {
 		this.searchDistance = d;
 	}
 
+	public double getPathTime() {
+		return pathTime;
+	}
+	
+	public void setPathTime(double d) {
+		this.pathTime = d;
+	}
+	
 	public double getEstimatedDistanceFromGoal() {
 		return estimatedDistanceFromGoal;
 	}
@@ -57,6 +67,15 @@ public class MapNode {
 		this.estimatedDistanceFromGoal = d;
 	}
 
+
+	public double getEstimatedTimeFromGoal() {
+		return estimatedTimeFromGoal;
+	}
+	
+	public void setEstimatedTimeFromGoal(double d) {
+		this.estimatedTimeFromGoal = d;
+	}
+	
 	public String toString() {
 		String s = "Node: " + this.getLocation();
 		s += ", searchDistance: "+this.getSearchDistance();

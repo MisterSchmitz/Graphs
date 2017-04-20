@@ -336,11 +336,15 @@ implements MapComponentInitializedListener {
 
 		RadioButton rbB = new RadioButton("BFS");
 		rbB.setUserData("BFS");
+		
+		RadioButton rbM = new RadioButton("A* Min Time");
+		rbM.setUserData("A* Min Time");
 
 		rbB.setToggleGroup(group);
 		rbD.setToggleGroup(group);
 		rbA.setToggleGroup(group);
-		return new LinkedList<RadioButton>(Arrays.asList(rbB, rbD, rbA));
+		rbM.setToggleGroup(group);
+		return new LinkedList<RadioButton>(Arrays.asList(rbB, rbD, rbA, rbM));
 	}
 
 

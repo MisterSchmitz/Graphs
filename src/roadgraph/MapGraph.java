@@ -32,6 +32,7 @@ public class MapGraph {
 	private int numEdges;
 	private HashMap<GeographicPoint, MapNode> vertices;
 	private int nodeVisitCount;
+//	private static int 
 
 	/** 
 	 * Create a new empty MapGraph 
@@ -354,7 +355,7 @@ public class MapGraph {
 			MapNode curr = toVisit.remove();
 
 			// Testing number of visited nodes
-			System.out.println("[A*] "+curr);
+//			System.out.println("[A*] "+curr);
 			nodeVisitCount++;
 			
 			// hook for visualization
@@ -376,17 +377,133 @@ public class MapGraph {
 						
 						MapNode neighborNode = vertices.get(neighbor.getLocationEnd());
 						
-						System.out.println("[A*] Neighbor: "+neighborNode);					
-						double pathToNeighbor = curr.getSearchDistance() + neighbor.getDistance();
+//						System.out.println("[A*] Neighbor: "+neighborNode);					
+						double pathDistanceToNeighbor = curr.getSearchDistance() + neighbor.getDistance();
 
 						// If path through curr to neighbor is shorter
-						if(pathToNeighbor < neighborNode.getSearchDistance()) {
+						if(pathDistanceToNeighbor < neighborNode.getSearchDistance()) {
 							
 							// Update curr as neighbor's parent in parent map
 							parentMap.put(neighborNode.getLocation(), curr.getLocation());
 							
 							// Enqueue {neighbor,distance} into the PQ
-							neighborNode.setSearchDistance(pathToNeighbor);
+							neighborNode.setSearchDistance(pathDistanceToNeighbor);
+							toVisit.add(neighborNode);
+						}
+					}
+				}
+			}
+		}
+		return found;
+	}
+	
+	/** Find the path from start to goal using A-Star search
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @return The list of intersections that form the shortest path from 
+	 *   start to goal (including both start and goal).
+	 */
+	public List<GeographicPoint> aStarMinTime(GeographicPoint start, GeographicPoint goal) {
+		// Dummy variable for calling the search algorithms
+        Consumer<GeographicPoint> temp = (x) -> {};
+        return aStarMinTime(start, goal, temp);
+	}
+	
+	/** Find the path from start to goal using A* search
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
+	 * @return The list of intersections that form the shortest path from 
+	 *   start to goal (including both start and goal).
+	 */
+	public List<GeographicPoint> aStarMinTime(GeographicPoint start, 
+											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
+	{
+		HashMap<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
+		
+		for (MapNode node : vertices.values()) {
+			node.setPathTime(Double.POSITIVE_INFINITY);
+			node.setEstimatedTimeFromGoal(node.getLocation().distance(goal) / 115);
+		}
+		
+		// Search for a path using A* algorithm
+		if(!aStarMinTimeSearch(start, goal, parentMap, nodeSearched)) {
+			return null;
+		}
+
+		System.out.println("Nodes visited with A* Min Time: "+nodeVisitCount);
+		
+		// reconstruct the path
+		return constructPath(start, goal, parentMap);
+	}
+	
+	/** Find the path from start to goal using A-Star search
+	 * 
+	 * @param start The starting location
+	 * @param goal The goal location
+	 * @param parentMap Map linking nodes to their parent in path
+	 * @param nodeSearched A hook for visualization.  See assignment instructions for how to use it.
+	 * @return boolean indicating whether a path was found using A* Search
+	 */
+	private boolean aStarMinTimeSearch(GeographicPoint start, GeographicPoint goal, 
+			HashMap<GeographicPoint, GeographicPoint> parentMap, Consumer<GeographicPoint> nodeSearched) {
+
+		boolean found = false;
+		
+		// Initialize
+		Comparator<MapNode> comparator = new MapNodeComparatorPathTime();
+		PriorityQueue<MapNode> toVisit = new PriorityQueue<MapNode>(comparator);
+		HashSet<MapNode> visited = new HashSet<MapNode>();
+
+		MapNode startNode = vertices.get(start);
+		MapNode goalNode = vertices.get(goal);
+		startNode.setPathTime(0);
+		toVisit.add(startNode);
+		
+		nodeVisitCount = 0;
+		
+		// Search
+		while (!toVisit.isEmpty()) {
+			
+			// dequeue node curr from front of queue
+			MapNode curr = toVisit.remove();
+
+			// Testing number of visited nodes
+//			System.out.println("[A* Time] "+curr);
+			nodeVisitCount++;
+			
+			// hook for visualization
+			nodeSearched.accept(curr.getLocation());
+			
+			if (!visited.contains(curr)) {
+				// add curr to visited set
+				visited.add(curr);
+				
+				// if curr is our goal
+				if (curr.equals(goalNode)) {
+					found = true;
+					break;
+				}
+				
+				// for each of curr's neighbors not in visited set:
+				for (MapEdge neighbor : curr.getEdges()) {
+					if (!visited.contains(neighbor.getLocationEnd())) {
+						
+						MapNode neighborNode = vertices.get(neighbor.getLocationEnd());
+						
+//						System.out.println("[A* Time] Neighbor: "+neighborNode);					
+						double pathTimeToNeighbor = curr.getPathTime() + neighbor.getRoadTime();
+
+						// If path through curr to neighbor is shorter
+						if(pathTimeToNeighbor < neighborNode.getPathTime()) {
+							
+							// Update curr as neighbor's parent in parent map
+							parentMap.put(neighborNode.getLocation(), curr.getLocation());
+							
+							// Enqueue {neighbor,distance} into the PQ
+							neighborNode.setPathTime(pathTimeToNeighbor);
 							toVisit.add(neighborNode);
 						}
 					}
@@ -461,15 +578,18 @@ public class MapGraph {
 //		/* Use this code in Week 3 End of Week Quiz */
 		MapGraph theMap = new MapGraph();
 		System.out.print("DONE. \nLoading the map...");
-		GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
+		GraphLoader.loadRoadMap("data/maps/san_diego.map", theMap);
 		System.out.println("DONE.");
-
-		GeographicPoint start = new GeographicPoint(32.8648772, -117.2254046);
-		GeographicPoint end = new GeographicPoint(32.8660691, -117.217393);
+		
+		GeographicPoint start = new GeographicPoint(32.72406, -117.161148);
+		GeographicPoint end = new GeographicPoint(32.7198662, -117.1556331);
 		
 		
-		List<GeographicPoint> route = theMap.dijkstra(start,end);
+//		List<GeographicPoint> route = theMap.dijkstra(start,end);
 		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
+		List<GeographicPoint> route3 = theMap.aStarMinTime(start,end);
+		
+		System.out.println(route3);
 		
 	}
 	
